@@ -1,5 +1,4 @@
 from scrapy import Spider
-from rich import print
 
 class QuoteSpider(Spider):
     name = "quotes"
@@ -12,3 +11,8 @@ class QuoteSpider(Spider):
                 'text': quote.css("::text").get(),
                 'author': quote.css("span.authorOrTitle::text").get()
             }
+
+        next_page = response.css('a.next_page::attr(href)').get()
+        if next_page is not None:
+            next_page = response.urljoin(next_page)
+            yield response.follow(next_page, callback=self.parse)
