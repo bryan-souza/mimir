@@ -64,7 +64,8 @@ ROBOTSTXT_OBEY = True
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'mimir.pipelines.TextPipeline': 100,
-   'mimir.pipelines.AuthorPipeline': 200
+   'mimir.pipelines.AuthorPipeline': 200,
+   'mimir.pipelines.MongoPipeline': 300
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -5,8 +5,11 @@
 
 
 # useful for handling different item types with a single interface
+import json
+
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
+from pymongo import MongoClient
 
 class TextPipeline:
     def process_item(self, item, spider):
@@ -34,3 +37,25 @@ class AuthorPipeline:
             return item
 
         raise DropItem(f"Missing quote author in {item}")
+
+class MongoPipeline:
+    def open_spider(self, spider):
+        db = json.load( open('config.json') )['db']
+        self.client = MongoClient(
+            host       = db['host'],
+            port       = db['port'],
+            username   = db['username'],
+            password   = db['password'],
+            authSource = db['database']
+        )
+        
+        self.db = self.client[f"{ db['database'] }"]
+        self.quotes = self.db[ db['collection'] ]
+
+    def process_item(self, item, spider):
+        quote = ItemAdapter(item)
+        self.quotes.insert_one( quote.asdict() )
+        return item
+
+    def close_spider(self, spider):
+        self.client.close()
