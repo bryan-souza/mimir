@@ -6,8 +6,31 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
-
-class MimirPipeline:
+class TextPipeline:
     def process_item(self, item, spider):
-        return item
+        adapter = ItemAdapter(item)
+        if adapter.get('text'):
+            text = adapter['text']
+            text = text.replace('\n', '')
+            text = text.strip()
+
+            adapter['text'] = text
+            return item
+
+        raise DropItem(f"Missing quote text in {item}")
+
+class AuthorPipeline:
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+        if adapter.get('author'):
+            author = adapter['author']
+            author = author.replace('\n', '')
+            author = author.replace(',', '')
+            author = author.strip()
+
+            adapter['author'] = author
+            return item
+
+        raise DropItem(f"Missing quote author in {item}")
